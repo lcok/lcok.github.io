@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>lcok&#39;s blog</title>
+  
+  <subtitle>知识知新</subtitle>
+  <link href="https://vious.cn/atom.xml" rel="self"/>
+  
+  <link href="https://vious.cn/"/>
+  <updated>2021-06-03T07:57:28.000Z</updated>
+  <id>https://vious.cn/</id>
+  
+  <author>
+    <name>lcok</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>如何提高nginx的安全性</title>
+    <link href="https://vious.cn/posts/6867d71/"/>
+    <id>https://vious.cn/posts/6867d71/</id>
+    <published>2021-06-03T06:14:19.000Z</published>
+    <updated>2021-06-03T07:57:28.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;2020年，四大主流浏览器计划不再支持 TLS 1.0 和</summary>
+        
+      
+    
+    
+    
+    
+    <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>百度网盘批量转存工具</title>
+    <link href="https://vious.cn/posts/c714d80/"/>
+    <id>https://vious.cn/posts/c714d80/</id>
+    <published>2021-05-19T06:55:06.000Z</published>
+    <updated>2022-10-16T03:06:17.473Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;需求&quot;&gt;&lt;a href=&quot;#需求&quot; class=&quot;headerlink&quot; title=&quot;需求&quot;&gt;&lt;/a&gt;需求&lt;/h2&gt;&lt;p&gt;某天，在将一个百度网盘分享转存到自己网盘里时，想到要有一款工具，能自动的将很多个分享文件转存到网盘目录下会节省很多时间。&lt;/p&gt;
+&lt;h2</summary>
+        
+      
+    
+    
+    
+    <category term="tools" scheme="https://vious.cn/categories/tools/"/>
+    
+    
+    <category term="fun" scheme="https://vious.cn/tags/fun/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在docker中使用nginx</title>
+    <link href="https://vious.cn/posts/7aa5072d/"/>
+    <id>https://vious.cn/posts/7aa5072d/</id>
+    <published>2021-05-19T05:22:22.000Z</published>
+    <updated>2021-05-19T05:36:10.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;准备&quot;&gt;&lt;a href=&quot;#准备&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="docker" scheme="https://vious.cn/tags/docker/"/>
+    
+    <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mosquitto的配置</title>
+    <link href="https://vious.cn/posts/7b3ad2a0/"/>
+    <id>https://vious.cn/posts/7b3ad2a0/</id>
+    <published>2021-05-14T05:41:43.000Z</published>
+    <updated>2021-05-14T05:44:30.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://www.baidu.com/link?url=yKdKgqDsOMfcp-7V2ISqUN7LvqEtMJdGHWJWYHG30GG&amp;wd=&amp;eqid=c3dfb7010038b28300000004609cf99e&quot;&gt;Eclipse</summary>
+        
+      
+    
+    
+    
+    
+    <category term="mqtt" scheme="https://vious.cn/tags/mqtt/"/>
+    
+    <category term="mosquitto" scheme="https://vious.cn/tags/mosquitto/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>挖矿病毒newinit背后的原理和清除</title>
+    <link href="https://vious.cn/posts/b917198/"/>
+    <id>https://vious.cn/posts/b917198/</id>
+    <published>2021-04-27T07:09:48.000Z</published>
+    <updated>2021-04-28T07:12:34.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;先在这里交代一下背景。&lt;/p&gt;
+&lt;p&gt;该公司规模较小，且历史包袱重。服务器在某云平台，且N年无人维护。&lt;/p&gt;
+&lt;p&gt;服务器使用的系统是 Centos6.5&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;风起&quot;&gt;&lt;a href=&quot;#风起&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="security" scheme="https://vious.cn/tags/security/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>闲聊Nginx的超时timeout</title>
+    <link href="https://vious.cn/posts/725ed0be/"/>
+    <id>https://vious.cn/posts/725ed0be/</id>
+    <published>2021-04-22T07:46:07.000Z</published>
+    <updated>2021-04-22T08:10:31.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;闲聊Nginx的超时-timeout&quot;&gt;&lt;a href=&quot;#闲聊Nginx的超时-timeout&quot; class=&quot;headerlink&quot; title=&quot;闲聊Nginx的超时(timeout)&quot;&gt;&lt;/a&gt;闲聊Nginx的超时(timeout)&lt;/h1&gt;&lt;h2</summary>
+        
+      
+    
+    
+    
+    <category term="bug" scheme="https://vious.cn/categories/bug/"/>
+    
+    
+    <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在docker中使用MongoDB</title>
+    <link href="https://vious.cn/posts/37178aa8/"/>
+    <id>https://vious.cn/posts/37178aa8/</id>
+    <published>2021-04-18T01:16:45.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;新建mongodb数据存储目录&lt;/p&gt;
+&lt;pre class=&quot;line-numbers language-shell&quot; data-language=&quot;shell&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;mkdir -p</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="docker" scheme="https://vious.cn/tags/docker/"/>
+    
+    <category term="MongoDB" scheme="https://vious.cn/tags/MongoDB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在docker中使用MinIO</title>
+    <link href="https://vious.cn/posts/7b2c2425/"/>
+    <id>https://vious.cn/posts/7b2c2425/</id>
+    <published>2021-04-18T01:14:50.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;新建MinIO数据存储目录&lt;/p&gt;
+&lt;pre class=&quot;line-numbers language-shell&quot; data-language=&quot;shell&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;mkdir -p</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="docker" scheme="https://vious.cn/tags/docker/"/>
+    
+    <category term="MinIO" scheme="https://vious.cn/tags/MinIO/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何安装mysql</title>
+    <link href="https://vious.cn/posts/183793f2/"/>
+    <id>https://vious.cn/posts/183793f2/</id>
+    <published>2021-04-17T15:36:12.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;centos7安装mysql5-7&quot;&gt;&lt;a href=&quot;#centos7安装mysql5-7&quot; class=&quot;headerlink&quot; title=&quot;centos7安装mysql5.7&quot;&gt;&lt;/a&gt;centos7安装mysql5.7&lt;/h2&gt;&lt;pre</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="mysql" scheme="https://vious.cn/tags/mysql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何安装php环境</title>
+    <link href="https://vious.cn/posts/66e9c7fd/"/>
+    <id>https://vious.cn/posts/66e9c7fd/</id>
+    <published>2021-04-17T15:35:58.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;centos7安装php环境&quot;&gt;&lt;a href=&quot;#centos7安装php环境&quot; class=&quot;headerlink&quot; title=&quot;centos7安装php环境&quot;&gt;&lt;/a&gt;centos7安装php环境&lt;/h2&gt;&lt;pre class=&quot;line-numbers</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="php" scheme="https://vious.cn/tags/php/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何安装nginx</title>
+    <link href="https://vious.cn/posts/296035cb/"/>
+    <id>https://vious.cn/posts/296035cb/</id>
+    <published>2021-04-17T15:35:37.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;centos7安装nginx&quot;&gt;&lt;a href=&quot;#centos7安装nginx&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在docker中使用redis</title>
+    <link href="https://vious.cn/posts/a5f76939/"/>
+    <id>https://vious.cn/posts/a5f76939/</id>
+    <published>2021-04-16T13:58:56.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;准备&quot;&gt;&lt;a href=&quot;#准备&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="docker" scheme="https://vious.cn/tags/docker/"/>
+    
+    <category term="redis" scheme="https://vious.cn/tags/redis/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>什么是mysqlpump</title>
+    <link href="https://vious.cn/posts/cf36362e/"/>
+    <id>https://vious.cn/posts/cf36362e/</id>
+    <published>2021-03-02T12:17:02.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;数据库备份有物理备份和逻辑备份两种形式，下面简单介绍这两种备份方式的区别，但不会太深入，毕竟本文的重点是mysqlpump。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;物理备份是将数据库的数据存储文件直接打包备份，也有些工具可以做物理备份。优点有：操作简单、恢复速度快；缺点有：版本</summary>
+        
+      
+    
+    
+    
+    <category term="tools" scheme="https://vious.cn/categories/tools/"/>
+    
+    <category term="what&#39;s" scheme="https://vious.cn/categories/tools/what-s/"/>
+    
+    
+    <category term="mysql" scheme="https://vious.cn/tags/mysql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何修改mysql的数据库名</title>
+    <link href="https://vious.cn/posts/60f5d476/"/>
+    <id>https://vious.cn/posts/60f5d476/</id>
+    <published>2021-02-15T15:15:25.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;使用脚本，安全且方便的将旧库&lt;strong&gt;改名&lt;/strong&gt;为新库。&lt;/p&gt;
+&lt;pre class=&quot;line-numbers language-none&quot;&gt;&lt;code</summary>
+        
+      
+    
+    
+    
+    <category term="tools" scheme="https://vious.cn/categories/tools/"/>
+    
+    
+    <category term="mysql" scheme="https://vious.cn/tags/mysql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何安装docker-ce</title>
+    <link href="https://vious.cn/posts/2d4a7e59/"/>
+    <id>https://vious.cn/posts/2d4a7e59/</id>
+    <published>2021-01-07T13:33:00.000Z</published>
+    <updated>2021-04-20T07:50:59.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;简单介绍下docker相关组件&lt;/p&gt;
+&lt;p&gt;containerd.io – daemon to interface with the OS API (in this case, LXC – Linux Containers),</summary>
+        
+      
+    
+    
+    
+    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    
+    
+    <category term="docker" scheme="https://vious.cn/tags/docker/"/>
+    
+    <category term="docker-compose" scheme="https://vious.cn/tags/docker-compose/"/>
+    
+  </entry>
+  
+</feed>

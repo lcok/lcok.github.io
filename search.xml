@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>如何提高nginx的安全性</title>
+      <link href="posts/6867d71/"/>
+      <url>posts/6867d71/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote><p>2020年，四大主流浏览器计划不再支持 TLS 1.0 和 1.1。这些旧版本容易受到攻击和利用，不再具备实用性。</p><p>现在请尽快启用或升级到 TLS 1.2 或 1.3，以防止中断、停机和用户不满的事件发生。</p></blockquote><p>本文分享一下如何加固nginx的安全性，从如何检测网站安全性说起</p><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p><a href="https://myssl.com/">myssl</a>，提供了各种工具，其中包含了网站安全检测工具。</p><p><a href="https://ssl-config.mozilla.org/#server=nginx&version=1.17.7&config=intermediate&openssl=1.1.1d&guideline=5.4">mozilla-ssl-config</a>，生成各服务器SSL配置的工具。</p><p><a href="https://www.ssllabs.com/ssltest/analyze.html">ssllabs</a>，网站检测工具</p><br/><h2 id="NGINX提高安全性"><a href="#NGINX提高安全性" class="headerlink" title="NGINX提高安全性"></a>NGINX提高安全性</h2><p>针对nginx的配置</p><br/><h3 id="全站HTTPS"><a href="#全站HTTPS" class="headerlink" title="全站HTTPS"></a>全站HTTPS</h3><p>建议全站使用https，漏网之鱼会大大降低整体安全性</p><br/><h3 id="使用高TLS版本"><a href="#使用高TLS版本" class="headerlink" title="使用高TLS版本"></a>使用高TLS版本</h3><pre class="line-numbers language-none"><code class="language-none">ssl_protocols TLSv1.2 TLSv1.3;ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;ssl_prefer_server_ciphers off;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><p>注意：</p><ul><li><p><code>ssl_protocols</code>一定去掉TLSv1.0和TLSv1.1，以及更老旧的SSL协议</p></li><li><p>nginx下不允许出现有个别server指定了更低版本的<code>ssl_protocols</code>，否则可能会导致启用失败</p></li><li><p>如果要使用TLSv1.3版本，则必须升级OpenSSL到支持TLSv1.3的1.1.1以后的版本</p><p>nginx依赖OpenSSL，nginx这里配置了TLSv1.3，那么OpenSSL首先要支持TLSv1.3才行</p></li><li><p><code>ssl_ciphers</code>指定通信加密使用的算法，可以从<code>openssl ciphers -v</code>命令的返回结果中挑选</p><p>可同时指定多个算法，以冒号分隔</p><p><code>openssl ciphers -v</code>返回结果要注意算法支持的TLS协议版本要和<code>ssl_protocols</code>内指定的相同</p></li><li><p><code>ssl_prefer_server_ciphers</code>，是否由服务器决定采用哪种加密算法，设置为off</p></li></ul><br/><h3 id="严格的HTTPS连接-HSTS"><a href="#严格的HTTPS连接-HSTS" class="headerlink" title="严格的HTTPS连接(HSTS)"></a>严格的HTTPS连接(HSTS)</h3><blockquote><h6 id="HTTP-Strict-Transport-Security-HSTS"><a href="#HTTP-Strict-Transport-Security-HSTS" class="headerlink" title="HTTP Strict Transport Security (HSTS)"></a>HTTP Strict Transport Security (HSTS)</h6><p>指示浏览器只使用 HTTPS 连接到目标服务器。这可以防止一些潜在的中间人攻击，包括 SSL 剥离，会话 cookie 窃取（如果没有被 <a href="https://blog.myssl.com/https-security-best-practices/#4cookies">适当保护</a>）。如果遇到任何与证书相关的错误，它还可以阻止浏览器连接到网站。当浏览器访问一个设置相应 HTTP header 的 HTTPS 网站时，HSTS 将被激活。</p><p>建议设置 HSTS header 长的生命周期，最好是半年及以上。</p></blockquote><pre class="line-numbers language-none"><code class="language-none">add_header Strict-Transport-Security &quot;max-age&#x3D;31536000&quot;;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br/><h3 id="控制Frame策略"><a href="#控制Frame策略" class="headerlink" title="控制Frame策略"></a>控制Frame策略</h3><blockquote><p>控制站点是否可以放置在 <code>&lt;iframe&gt;</code>，<code>&lt;frame&gt;</code> 或 <code>&lt;object&gt;</code> 标签。不允许使用框架可以防止 clickjacking 攻击。例如，从 2015 年 2 月起，<a href="http://thehackernews.com/2015/02/internet-explorer-xss.html">Internet Explorer’s universal cross-site-scripting bug</a> 就被这个消息头减轻了。</p><p><code>X-Frame-Options</code> 是一个非标准的 header，在内容安全策略级别 2 中被 <em>frame ancestor</em> 指令所取代。然而，<em>frame ancestor</em> 还没有得到普遍的支持，而 <code>X-Frame-Options</code> 得到了广泛的支持。</p></blockquote><p>如果你确定，网站将不会被用于内嵌在frame中，则可以设置：</p><pre class="line-numbers language-none"><code class="language-none">add_header X-Frame-Options deny;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>如果网站有页面会需要内嵌在frame中，则需要相对宽松的设置：</p><pre class="line-numbers language-none"><code class="language-none">add_header X-Frame-Options SAMEORIGIN;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br/><h3 id="禁止XSS"><a href="#禁止XSS" class="headerlink" title="禁止XSS"></a>禁止XSS</h3><blockquote><p>跨站点脚本（XSS 或 CSS）的保护被构建到大多数流行的浏览器中，除了 Firefox 之外。这种保护是用户可配置的，可以关闭。因此，明确要求浏览器在你的网站上使用它的 XSS 过滤器是个好主意。</p></blockquote><pre class="line-numbers language-none"><code class="language-none">add_header X-Xss-Protection: &quot;1; block&quot;;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br/><h3 id="隐藏nginx版本号"><a href="#隐藏nginx版本号" class="headerlink" title="隐藏nginx版本号"></a>隐藏nginx版本号</h3><p>隐藏nginx的版本号，能提高一些安全性</p><pre class="line-numbers language-none"><code class="language-none">server_tokens off;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br/><h3 id="配置OCSP-Stapling"><a href="#配置OCSP-Stapling" class="headerlink" title="配置OCSP Stapling"></a>配置OCSP Stapling</h3><blockquote><p>OCSP的全称是Online Certificate Status Protocol，即<strong>在线证书状态协议</strong></p><p>在服务器上部署OCSP Stapling能极大的提高安全稳定性能、降低客户端验证请求延迟，减少等待查询结果的响应时间，用户体验更好</p></blockquote><pre class="line-numbers language-none"><code class="language-none">ssl_stapling on;ssl_stapling_verify on;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br/><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://myssl.com/">myssl</a></p><p><a href="http://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_ciphers">nginx-config-doc</a></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> nginx </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>百度网盘批量转存工具</title>
+      <link href="posts/c714d80/"/>
+      <url>posts/c714d80/</url>
+      
+        <content type="html"><![CDATA[<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>某天，在将一个百度网盘分享转存到自己网盘里时，想到要有一款工具，能自动的将很多个分享文件转存到网盘目录下会节省很多时间。</p><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>整体思路就是，先摸清在百度网盘中，提取一个分享需要几个步骤；再分析每个步骤调用了那些API；随后“猜”出这些API的参数是什么；最后设计开发就没问题了。</p><h2 id="逆向"><a href="#逆向" class="headerlink" title="逆向"></a>逆向</h2><p>在百度网盘网页版中，将分享保存到自己网盘一共有3个步骤：</p><ul><li>打开分享链接</li><li>提取码提取（验证）</li><li>转存到自己网盘指定目录下</li></ul><p>每个步骤发送的API请求：</p><ul><li>分享页面GET请求</li><li>分享提取验证POST请求</li><li>转存POST请求</li></ul><p>这些个请求总体的依赖参数有：</p><ul><li>已经登陆的百度网盘Cookie</li><li><code>logId</code>-来自cookie中的<code>BAIDUID</code>字段</li><li>分享链接的短码-来自分享链接的最后22位</li><li>分享链接的提取码</li><li><code>shareId</code>、<code>fsid</code>等字段</li></ul><p>参数的具体来源这里就不一一细说了:)</p><h2 id="行动"><a href="#行动" class="headerlink" title="行动"></a>行动</h2><p>简单的说，有这么两种方式可以提供该工具：</p><ol><li>在线的UI页面</li><li>本地工具（UI或者命令行）</li></ol><p>出于简单考虑，暂时用本地工具的命令行方式好了。</p><p>于是，花了几天，用java写出来一个<a href="https://github.com/lcok/baidupantransfer">百度网盘批量转存工具</a>。</p><p>使用方式很简单，自己编译，或者使用我<a href="https://github.com/lcok/baidupantransfer/releases">编译好的jar包</a>，在本地命令行执行<code>java -jar xxx.jar</code>即可运行。</p><p>在我自己的使用过程中，转存几千个链接，没什么大问题。</p><p>跟我自己手动去转存比起来，确实能节省很多时间。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个工具算是我开源项目的试水，希望能继续为开源贡献自己的力量。同时，希望这个工具能帮助到一些有需求的同学。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> tools </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> fun </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>在docker中使用nginx</title>
+      <link href="posts/7aa5072d/"/>
+      <url>posts/7aa5072d/</url>
+      
+        <content type="html"><![CDATA[<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>安装目标：</p><p>启动nginx，监听80和443端口。</p><p>nginx的配置文件、日志文件存放在宿主机。</p><p>选择一个适合的版本：</p><p><a href="https://hub.docker.com/">在docker-hub中选择</a></p><pre class="line-numbers language-none"><code class="language-none"># 此处选用1.20-alpinedocker pull nginx:1.20-alpine<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>准备存放持久化文件、配置文件的宿主机目录</p><pre class="line-numbers language-none"><code class="language-none">mkdir -p &#x2F;data&#x2F;nginx&#x2F;&#123;ssl_cert,conf,logs,data&#125;mkdir -p &#x2F;data&#x2F;nginx&#x2F;conf&#x2F;conf.d<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>编写配置文件nginx.conf，并放入宿主机目录/data/nginx/conf/nginx.conf</p><pre class="line-numbers language-none"><code class="language-none">user  nginx;worker_processes  auto;error_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log notice;pid        &#x2F;var&#x2F;run&#x2F;nginx.pid;events &#123;    worker_connections  1024;&#125;http &#123;    include       &#x2F;etc&#x2F;nginx&#x2F;mime.types;    default_type  application&#x2F;octet-stream;    log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;                      &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;                      &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;    access_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log  main;    sendfile        on;    #tcp_nopush     on;    keepalive_timeout  65;    #gzip  on;    # file size    client_max_body_size   100m;    include &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;*.conf;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>编写默认的server配置。并放入宿主机目录/data/nginx/conf/conf.d/default.conf</p><pre class="line-numbers language-none"><code class="language-none">server &#123;    listen       80;    listen  [::]:80;    server_name  localhost;    #access_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;host.access.log  main;    location &#x2F; &#123;        root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;        index  index.html index.htm;    &#125;    #error_page  404              &#x2F;404.html;    # redirect server error pages to the static page &#x2F;50x.html    #    error_page   500 502 503 504  &#x2F;50x.html;    location &#x3D; &#x2F;50x.html &#123;        root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;    &#125;    # proxy the PHP scripts to Apache listening on 127.0.0.1:80    #    #location ~ \.php$ &#123;    #    proxy_pass   http:&#x2F;&#x2F;127.0.0.1;    #&#125;    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000    #    #location ~ \.php$ &#123;    #    root           html;    #    fastcgi_pass   127.0.0.1:9000;    #    fastcgi_index  index.php;    #    fastcgi_param  SCRIPT_FILENAME  &#x2F;scripts$fastcgi_script_name;    #    include        fastcgi_params;    #&#125;    # deny access to .htaccess files, if Apache&#39;s document root    # concurs with nginx&#39;s one    #    #location ~ &#x2F;\.ht &#123;    #    deny  all;    #&#125;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>编写nginx启动脚本</p><pre class="line-numbers language-none"><code class="language-none">docker run -d \  --name nginx120 \  -p 80:80 \  -p 443:443 \  -v &#x2F;data&#x2F;nginx&#x2F;ssl_cert:&#x2F;etc&#x2F;nginx&#x2F;ssl_cert \  -v &#x2F;data&#x2F;nginx&#x2F;conf&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf:rw \  -v &#x2F;data&#x2F;nginx&#x2F;conf&#x2F;conf.d&#x2F;:&#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;:rw \  -v &#x2F;data&#x2F;nginx&#x2F;logs&#x2F;:&#x2F;var&#x2F;log&#x2F;nginx&#x2F; \  -v &#x2F;data&#x2F;nginx&#x2F;data&#x2F;:&#x2F;data&#x2F;nginx&#x2F;data&#x2F; \  nginx:1.20-alpine;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>查看是否启动成功</p><pre class="line-numbers language-none"><code class="language-none">docker psdocker logs nginx120curl http:&#x2F;&#x2F;localhost<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><h3 id="server配置文件"><a href="#server配置文件" class="headerlink" title="server配置文件"></a>server配置文件</h3><p>server的配置文件放在宿主机的 /data/nginx/conf/conf.d</p><h3 id="宿主机ip"><a href="#宿主机ip" class="headerlink" title="宿主机ip"></a>宿主机ip</h3><p>通过<code>ifconfig</code>查看，找到<code>docker0</code>项的IPV4地址就是宿主机ip，例如：127.17.0.1</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> docker </tag>
+            
+            <tag> nginx </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Mosquitto的配置</title>
+      <link href="posts/7b3ad2a0/"/>
+      <url>posts/7b3ad2a0/</url>
+      
+        <content type="html"><![CDATA[<p><a href="https://www.baidu.com/link?url=yKdKgqDsOMfcp-7V2ISqUN7LvqEtMJdGHWJWYHG30GG&wd=&eqid=c3dfb7010038b28300000004609cf99e">Eclipse Mosquitto</a> 是一个mqtt的代理服务器。</p><h2 id="配置协议"><a href="#配置协议" class="headerlink" title="配置协议"></a>配置协议</h2><p>现有场景是，服务器端和浏览器端都要连接到mqtt代理，并使用mqtt协议通信。</p><p>服务器端使用mqtt协议即可正常连接，但浏览器不支持mqtt协议。所以需要mqtt代理配置websocket协议，来兼容浏览器的连接。</p><h3 id="mqtt协议配置"><a href="#mqtt协议配置" class="headerlink" title="mqtt协议配置"></a>mqtt协议配置</h3><p>mosquitto.conf</p><pre class="line-numbers language-none"><code class="language-none">listener 1883 0.0.0.0protocol mqtt<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h3 id="websocket协议配置"><a href="#websocket协议配置" class="headerlink" title="websocket协议配置"></a>websocket协议配置</h3><p>mosquitto.conf</p><pre class="line-numbers language-none"><code class="language-none">listener 1884 0.0.0.0protocol websockets<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h3 id="安全的websocket协议配置-websocket-over-TLS"><a href="#安全的websocket协议配置-websocket-over-TLS" class="headerlink" title="安全的websocket协议配置(websocket over TLS)"></a>安全的websocket协议配置(websocket over TLS)</h3><p>mosquitto.conf</p><pre class="line-numbers language-none"><code class="language-none">listener 1885 0.0.0.0protocol websocketscafile &#x2F;mosquitto&#x2F;cert&#x2F;xxx_chain.crtcertfile &#x2F;mosquitto&#x2F;cert&#x2F;xxx_public.crtkeyfile &#x2F;mosquitto&#x2F;cert&#x2F;xxx.key<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>可以同时配置多个listener，以实现多个端口/协议协作。</p><p>如果要将不同的用户端隔离开来，<code>mount_point</code>是额外需要配置的参数。</p><h2 id="配置用户"><a href="#配置用户" class="headerlink" title="配置用户"></a>配置用户</h2><p>mosquitto.conf</p><pre class="line-numbers language-none"><code class="language-none"># 关闭匿名模式allow_anonymous false# 指定密码文件password_file &#x2F;mosquitto&#x2F;config&#x2F;pwfile.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><p>新建密码存储文件</p><pre class="line-numbers language-none"><code class="language-none">touch &#x2F;mqtt-mosquitto&#x2F;config&#x2F;pwfile.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>修改文件夹权限</p><pre class="line-numbers language-none"><code class="language-none">chmod -R 755 &#x2F;data&#x2F;mqtt-mosquitto<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>启动后，使用<code>mosquitto_passwd</code>命令来操作用户</p><pre class="line-numbers language-none"><code class="language-none"># 新增&#x2F;修改用户。对同一个用户名，多次使用，就是修改密码mosquitto_passwd -b &#x2F;mosquitto&#x2F;config&#x2F;pwfile.conf username password# 删除用户mosquitto_passwd -D  username<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul><li>Mosquitto支持的协议<ul><li>支持mqtt原生协议</li><li>支持websocket协议（ws）</li><li>支持TLS的websocket协议（wss）</li></ul></li><li>Mosquitto可以同时开放多个端口/协议连接相同/不同的隔离空间</li><li>建议配置用户名密码来连接代理，更安全</li></ul><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://mosquitto.org/man/mosquitto-conf-5.html">http://mosquitto.org/man/mosquitto-conf-5.html</a></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> mqtt </tag>
+            
+            <tag> mosquitto </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>挖矿病毒newinit背后的原理和清除</title>
+      <link href="posts/b917198/"/>
+      <url>posts/b917198/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>先在这里交代一下背景。</p><p>该公司规模较小，且历史包袱重。服务器在某云平台，且N年无人维护。</p><p>服务器使用的系统是 Centos6.5</p></blockquote><h2 id="风起"><a href="#风起" class="headerlink" title="风起"></a>风起</h2><p>某天，诸多业务不可用。定位到某台服务器A，随后登陆服务器查看，发现CPU资源被不认识的进程占用，内存也告急。意识到可能是病毒，第一反应，先kill掉进程，随后去云控制台修改登录密码。</p><h2 id="修改密码遇到麻烦事"><a href="#修改密码遇到麻烦事" class="headerlink" title="修改密码遇到麻烦事"></a>修改密码遇到麻烦事</h2><p>病毒进程能被kill，但在云控制台修改密码失败。基本可以断定云厂商在服务器的内置管理程序被病毒干掉了，那只能提交工单给某云，让其工程师协助恢复内置的管理程序。</p><p>某云工程师在处理过程中，反映内存占用太高，无法继续安装。</p><h2 id="内存占用很头疼"><a href="#内存占用很头疼" class="headerlink" title="内存占用很头疼"></a>内存占用很头疼</h2><p>那就先解决内存占用问题。<code>free -hm</code>命令，查看<code>-/+ buffers/cache</code>占用近乎95%的内存，而且<code>top</code>中没有找到哪怕占用1%内存的进程。神奇。正常情况下，内存的使用可以简单的划分为：</p><ul><li>系统本身占用</li><li>进程占用</li></ul><p>那么既然进程没有占用，那肯定是系统本身占用了。有可能是系统运行过程中产生的缓存，这个容易判断，重启即可。</p><p>重启后，内存占用问题还在，排除了系统运行过程中各种原因导致的缓存。那么可以猜测是系统内核的配置参数，使系统在刚启动，就占用了超高的内存。</p><p>查看<code>/etc/sysctl.conf</code>文件就能够验证猜测，不查不知道，一查吓一跳。<code>/etc/sysctl.conf</code>文件异常的大，里面有大量的重复的配置，形如<code>vm.nr_hugepages=xxxxxx</code>、<code>kernel.nmi_watchdog=0</code>等（回过头才知道，这些奇怪的配置是病毒添加的），这些配置使系统开机就分配掉了大量内存。</p><p>知道问题，解决就简单了，从正常的同系统服务器上，或者某云上提供的默认配置示例，copy一份覆盖掉现在的被污染的<code>/etc/sysctl.conf</code>，随后重启，内存占用问题解决。</p><p>那么某云工程师也能正常安装管理程序了，工单处理完成，密码修改成功，一切看起来很美好。</p><h2 id="机缘巧合"><a href="#机缘巧合" class="headerlink" title="机缘巧合"></a>机缘巧合</h2><p>用修改后的密码登陆服务器，先把业务恢复，然后寻找病毒藏在哪里。不一会，CPU又开始飙高。病毒又卷土重来了。</p><p>看来，这个病毒会定时触发，<code>crontab -l</code>一下，果然，定时执行了 <code>/etc/newinit.sh</code>脚本，得来全不费功夫，这个脚本就是病毒咯。</p><p>google该病毒脚本的一些代码，找到对应的杀毒脚本。病毒问题解决: )</p><p>当然，分析病毒脚本到底做了什么事，还是有必要的。</p><h2 id="窥探病毒的真面目"><a href="#窥探病毒的真面目" class="headerlink" title="窥探病毒的真面目"></a>窥探病毒的真面目</h2><p>下面开始分析这个病毒脚本干了什么事，由于篇幅原因，只列出比较关键的操作。</p><pre class="line-numbers language-none"><code class="language-none">修改进程能打开的最大文件数关闭各个系统的防火墙关闭SELINUX清除所有iptables规则关闭watchdog清除操作日志将各个常用命令curl、wget等改名字卸载各个常见共有云的内置管理程序声明矿池地址等安装unhide gawk批量杀掉一批有特征的挖矿病毒（足足写了486行的命令来干掉同行，看来挖矿病毒也卷起来了:) ）通过一些特点干掉其他进程（进程的完整命令里带不带&#x2F;tmp、进程的cpu占用有没有超过40%，如果满足条件，就认为是同行，也干掉）还有80行命令，用来干掉同行添加iptables规则屏蔽掉同行的端口（5555，7777，10008等）修改&#x2F;etc&#x2F;resolv.conf藏匿ps、top、pstree命令（将原来的命令改名，写假的文件替代原来的命令）写crontab脚本，来定时执行本脚本（保活）在&#x2F;root&#x2F;.ssh目录下，放一个公钥，用来让黑客轻松登陆下载了一个txt文件（黑客的小幽默，这个txt里面只有一个笑脸 :) ）下载挖矿程序启动挖矿程序下载并执行了一个脚本A脚本A里最后下载并执行了脚本B<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>下面看看脚本A和B里干了啥</p><p>脚本A</p><pre class="line-numbers language-none"><code class="language-none">升级除了procps* psmisc*以外的软件（加固系统安全？防止同行入侵？不升级管理进程的工具）下载了1.0.4.tar.gz 和 pnscan.tar.gz  (Masscan和pnscan)解压并make安装了上述两个程序注：Masscan 是端口扫描工具，pnscan是一个病毒，使用redis漏洞。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>脚本B</p><pre class="line-numbers language-none"><code class="language-none">使用pnscan扫描ip段内的所有6379端口（找redis）尝试使用无密码、弱密码登陆可能的redis服务写了个攻击脚本，如果上步登陆成功了，就执行这个攻击脚本，下一台服务器就沦陷了下载了俩二进制文件，用来做端口扫描和攻击<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>总的来说：</p><ul><li><p>使用将近600行代码，用来杀掉同行:)</p></li><li><p>病毒会在感染本服务器后，继续扩散感染其他服务器。方式是扫端口，redis未授权访问漏洞</p></li><li><p>病毒下载的所有工具/文件，都来自一个固定的ip（当然了，八成也是一个受害者）</p></li><li><p>病毒会将进程管理、文件下载工具等命令进行改名隐藏。增加了解决问题的难度。</p></li></ul><h2 id="对症下药"><a href="#对症下药" class="headerlink" title="对症下药"></a>对症下药</h2><p>依据病毒的操作，进行逆操作就可以干掉病毒了。</p><p>比如：</p><ul><li><p>清理定时器、脚本文件</p></li><li><p>封锁病毒用到的ip、ssh公钥</p></li><li><p>恢复chattr、top、ps等命令文件</p></li><li><p>修改/etc/resolv.conf</p></li></ul><pre class="line-numbers language-none"><code class="language-none"># 例如：腾讯云# 183.60.83.19# 183.60.82.98# 命令：echo -en &quot;nameserver 183.60.83.19\nnameserver 183.60.82.98\noptionstimeout:1 rotate\n&quot; &gt; &#x2F;etc&#x2F;resolv.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><ul><li>开启防火墙等安全模块、安装云供应商的管理程序</li><li>等等，不再一一赘述</li></ul><p>其实，目前阶段的挖矿病毒，原理其实大同小异。找到薄弱的点、展开攻击、挖矿、进一步扩散。</p><p>解决方法也相差无几，不过病毒和杀毒，两者就是互相进化、无休止的对抗过程，一方有新计谋，另一方就有新对策。</p><p>解决一个特定的病毒，可能并不困难，但重要的，依旧是做好最全面的防护，补齐短板，不给黑客们可乘之机。</p><h2 id="再回首"><a href="#再回首" class="headerlink" title="再回首"></a>再回首</h2><p>在这段时间，不止A服务器被病毒感染了，B服务器也有类似的情况。</p><p>两个病毒的不同之处：</p><ul><li>触发方式不同：有个是将病毒脚本放在某个目录下，定时触发；有个是定时从某个网址拉取脚本后执行。</li><li>病毒脚本不同</li><li>入侵方式不同（SSH口令爆破、redis未授权访问漏洞）</li><li>挖矿工具、矿池不同（有w.apacheorg.xyz、w.apacheorg.top、也有47.100.95.105）</li></ul><p>相同点：</p><ul><li>目的相同，都是使用服务器资源来挖矿</li><li>都是通过crontab定时脚本来保活</li><li>脚本大体流程相同</li></ul><p>总的来说，这些服务器的安全问题相当之严重，被不止一批黑客随意使用。既然黑客能神不知鬼不觉的入侵进来，那他能干什么事，也就不得而知了。</p><h2 id="一些想法"><a href="#一些想法" class="headerlink" title="一些想法"></a>一些想法</h2><p>总结起来，这次服务器被病毒感染的原因有以下几点：</p><ul><li>为了方便，服务器全都向外网开放了22端口</li><li>SSH弱口令，甚至所有的root密码都一致</li><li>服务器内应用服务的密码简单（mysql密码简单、redis无密码等）、版本低。</li><li>系统版本过低，从未安装过安全补丁。Centos6在2020.11已停止维护。</li></ul><p>上述几个原因，每个都是相当危险的，SSH弱口令会被轻易爆破，redis无密码且版本低会被黑客利用redis的漏洞，将文件写入到本地，从而被侵入。系统未打过补丁，会降低黑客利用系统漏洞的成本等等。</p><p>对应的解决方法：</p><ul><li>SSH更换端口，不使用22</li><li>替换掉SSH密码登陆，改用公钥</li><li>redis一定要设定密码，redis尽量尽量尽量不暴露在外网</li><li>mysql、redis、mq等基础软件，一定要关注安全更新</li><li>操作系统要使用支持维护的稳定版。比如Centos7会维护到2024年。</li><li>操作系统一定要及时安装安全补丁</li><li>生产环境一定要放在完全封闭的内网，仅通过跳板机/堡垒机操作</li><li>权限管理尽量细致，避免root滥用的情况</li></ul><p>以此为鉴，要对服务器安全、数据安全有足够的重视，不可仅顾业务拓展，而无视了业务运行之基石。</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://wiki.debian.org/Hugepages">什么是Hugepages-wiki</a></p><p><a href="https://s.tencent.com/research/report/1292.html">腾讯安全-8220挖矿变种</a></p><p><a href="https://blog.centos.org/2020/12/future-is-centos-stream/">future-is-centos-stream</a> (一声叹息)</p><p><a href="https://rockylinux.org/">Rocky Linux</a> (准备迎接 rocky linux)</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> security </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>闲聊Nginx的超时timeout</title>
+      <link href="posts/725ed0be/"/>
+      <url>posts/725ed0be/</url>
+      
+        <content type="html"><![CDATA[<h1 id="闲聊Nginx的超时-timeout"><a href="#闲聊Nginx的超时-timeout" class="headerlink" title="闲聊Nginx的超时(timeout)"></a>闲聊Nginx的超时(timeout)</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><h5 id="1-问题出现"><a href="#1-问题出现" class="headerlink" title="1.问题出现"></a>1.问题出现</h5><p>前端调用一个线上业务API，报错 <code>504 Gateway Time Out</code>，分析原因：</p><p>首先排除业务API的逻辑问题。该API用来做不同系统之间的数据同步，传入不同的参数会同步不同的数据，这些数据有json，也会有打包的静态文件等等。当传入一些牵扯到比较小规模的同步参数时，API调用没有问题。</p><p>所以猜测问题应该是同步的数据体积大、打包慢、传输速度慢，导致接口耗时长，触发了某一环节的超时限制。</p><p>那么需要逐步排除哪一层限制了超时时间，导致接口还没正常返回就把连接切断了。</p><h5 id="2-问题解决"><a href="#2-问题解决" class="headerlink" title="2.问题解决"></a>2.问题解决</h5><p>从前端到后端一步步排查：</p><p>先让前端取消掉接口的超时限制，发现还是超时，不过这次从浏览器-&gt;开发者工具-&gt;NetWork中发现一个现象，调用该接口时，会显示<code>pending</code>状态，1分钟后，立即返回<code>504 Gateway Time Out</code>，且每次都可复现。</p><p>据此推测，是Nginx中的某个关于代理/调用相关的配置的默认值是1分钟，导致所有接口timeout时间被限制在了1分钟。</p><p>查找Nginx文档，找到</p><ul><li>proxy_read_timeout</li><li>proxy_send_timeout</li><li>proxy_connect_timeout</li></ul><p>这三个看起来有眼缘的配置默认值恰好是60s。暴力点，直接配置线上Nginx的这三个配置为1200（20分种），再测试，问题解决: )</p><h2 id="探索"><a href="#探索" class="headerlink" title="探索"></a>探索</h2><p>Nginx的超时(timeout)相关配置</p><ul><li><p>auth相关</p><ul><li><a href="http://nginx.org/en/docs/mail/ngx_mail_auth_http_module.html#auth_http_timeout">auth_http_timeout</a></li></ul><p>设置与认证服务器通信的超时时间。</p></li><li><p>client相关</p><ul><li><p><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_timeout">client_body_timeout</a></p><p>定义读取客户端请求正文的超时。仅在两次连续读取操作之间的一段时间内设置超时，而不是为整个请求主体的传输设置超时。如果客户端在此时间内未传输任何内容，则请求会因<strong>408</strong>（请求超时）错误而终止。</p></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#client_header_timeout">client_header_timeout</a></p><p>定义用于读取客户端请求标头的超时。如果客户端在此时间内未传输整个标头，则请求会因<strong>408</strong>（请求超时）错误而终止。</p></li></ul></li><li><p>proxy相关</p><ul><li><p><a href="http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_connect_timeout">proxy_connect_timeout</a> (ngx_http_proxy_module)</p><p>定义与代理服务器建立连接的超时。请注意，此超时通常不能超过75秒。</p><table><thead><tr><th align="left">Syntax:</th><th><code>proxy_connect_timeout time;</code></th></tr></thead><tbody><tr><td align="left">Default:</td><td><code>proxy_connect_timeout 60s;</code></td></tr><tr><td align="left">Context:</td><td><code>http</code>, <code>server</code>, <code>location</code></td></tr></tbody></table></li><li><p><a href="http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_connect_timeout">proxy_connect_timeout</a> (ngx_stream_proxy_module)</p><p>定义与代理服务器建立连接的超时。</p><table><thead><tr><th align="left">Syntax:</th><th><code>proxy_connect_timeout time;</code></th></tr></thead><tbody><tr><td align="left">Default:</td><td><code>proxy_connect_timeout 60s;</code></td></tr><tr><td align="left">Context:</td><td><code>stream</code>, <code>server</code></td></tr></tbody></table></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout">proxy_read_timeout</a></p><p>定义用于从代理服务器读取响应的超时。超时仅在两次连续的读取操作之间设置，而不用于传输整个响应。如果代理服务器在此时间内未传输任何内容，则连接将关闭。</p><table><thead><tr><th align="left">Syntax:</th><th><code>proxy_read_timeout time;</code></th></tr></thead><tbody><tr><td align="left">Default:</td><td><code>proxy_read_timeout 60s;</code></td></tr><tr><td align="left">Context:</td><td><code>http</code>, <code>server</code>, <code>location</code></td></tr></tbody></table></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_send_timeout">proxy_send_timeout</a></p></li><li><p><a href="http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html#proxy_timeout">proxy_timeout</a> (ngx_stream_proxy_module)</p><p>与代理服务器建立连接时，启用或禁用通过<a href="http://en.wikipedia.org/wiki/Server_Name_Indication">TLS服务器名称指示扩展名</a>（SNI）传递服务器名称。</p></li></ul></li><li><p>keepalive相关</p><ul><li><p><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#keepalive_timeout">keepalive_timeout</a> (ngx_http_core_module)</p><p>第一个参数设置超时，在此期间，保持活动的客户端连接将在服务器端保持打开状态。<code>0</code>值将禁用保持活动状态的客户端连接。可选的第二个参数在“ Keep-Alive: timeout=time”响应标头字段中设置一个值。两个参数可能不同。Mozilla和Konqueror可以识别 “ Keep-Alive: timeout=time ” header字段。MSIE会在大约60秒内自行关闭保持活动的连接。</p><table><thead><tr><th align="left">Syntax:</th><th><code>keepalive_timeout timeout [header_timeout];</code></th></tr></thead><tbody><tr><td align="left">Default:</td><td><code>keepalive_timeout 75s;</code></td></tr><tr><td align="left">Context:</td><td><code>http</code>, <code>server</code>, <code>location</code></td></tr></tbody></table></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#keepalive_timeout">keepalive_timeout</a> (ngx_http_upstream_module)</p><p>version 1.15.3 + 可用。</p><p>设置一个超时，在此超时期间，与上游服务器的空闲keepalive连接将保持打开状态。</p><table><thead><tr><th align="left">Syntax:</th><th><code>keepalive_timeout timeout;</code></th></tr></thead><tbody><tr><td align="left">Default:</td><td><code>keepalive_timeout 60s;</code></td></tr><tr><td align="left">Context:</td><td><code>upstream</code></td></tr></tbody></table></li></ul></li><li><p>grpc相关</p><ul><li><p><a href="http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_connect_timeout">grpc_connect_timeout</a></p><p>定义与gRPC服务器建立连接的超时。请注意，此超时通常不能超过75秒。</p></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_next_upstream_timeout">grpc_next_upstream_timeout</a></p><p>限制将请求传递到 上游服务器的时间。该<code>0</code>值将关闭此限制。</p></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_read_timeout">grpc_read_timeout</a></p></li><li><p><a href="http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_send_timeout">grpc_send_timeout</a></p></li></ul></li><li><p>其他</p><ul><li><a href="http://nginx.org/en/docs/stream/ngx_stream_upstream_hc_module.html#health_check_timeout">health_check_timeout</a></li><li><a href="http://nginx.org/en/docs/http/ngx_http_v2_module.html#http2_idle_timeout">http2_idle_timeout</a></li><li><a href="http://nginx.org/en/docs/http/ngx_http_v2_module.html#http2_recv_timeout">http2_recv_timeout</a></li><li><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#send_timeout">send_timeout</a></li><li><a href="http://nginx.org/en/docs/mail/ngx_mail_core_module.html#timeout">timeout</a></li></ul></li></ul><h2 id="反思"><a href="#反思" class="headerlink" title="反思"></a>反思</h2><ol><li>有必要记录每次接口的调用用时/参数/IP等信息。</li><li>接口/业务设计时，要预估这个业务的耗时，耗时可能过长的要做特定处理。</li><li>要了解Nginx的常用配置</li></ol><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>Nginx的所有配置项：  <a href="http://nginx.org/en/docs/dirindex.html">Nginx-Directives</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> bug </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> nginx </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>在docker中使用MongoDB</title>
+      <link href="posts/37178aa8/"/>
+      <url>posts/37178aa8/</url>
+      
+        <content type="html"><![CDATA[<p>新建mongodb数据存储目录</p><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">mkdir -p &#x2F;data&#x2F;mongodb&#x2F;xxx_data<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>新建启动脚本</p><pre class="line-numbers language-none"><code class="language-none">tee &#x2F;data&#x2F;startupMongoDB.sh &lt;&lt;-&#39;EOF&#39;docker run \--name mongodb-xxx \-d  \--restart&#x3D;always \-p 27017:27017 \-e MONGO_INITDB_ROOT_USERNAME&#x3D;root \-e MONGO_INITDB_ROOT_PASSWORD&#x3D;xxxxxxx \-v &#x2F;data&#x2F;mongodb&#x2F;xxx_data:&#x2F;data&#x2F;db \mongo:4.4.3-bionicEOF<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>启动</p><pre class="line-numbers language-none"><code class="language-none">cd &#x2F;datachmod +x startupMongoDB.sh.&#x2F;statupMongoDB.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> docker </tag>
+            
+            <tag> MongoDB </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>在docker中使用MinIO</title>
+      <link href="posts/7b2c2425/"/>
+      <url>posts/7b2c2425/</url>
+      
+        <content type="html"><![CDATA[<p>新建MinIO数据存储目录</p><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">mkdir -p &#x2F;data&#x2F;minio&#x2F;xxx_data<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>新建启动脚本</p><pre class="line-numbers language-none"><code class="language-none">tee &#x2F;data&#x2F;startupMinIO.sh &lt;&lt;-&#39;EOF&#39;docker run \--name minio-xxx \-d  \--restart&#x3D;always \-p 9000:9000 \-e &quot;MINIO_ACCESS_KEY&#x3D;root&quot; \-e &quot;MINIO_SECRET_KEY&#x3D;xxxxxx&quot; \-v &#x2F;data&#x2F;minio&#x2F;xxx_data:&#x2F;data \minio&#x2F;minio server &#x2F;dataEOF<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>启动</p><pre class="line-numbers language-none"><code class="language-none">cd &#x2F;datachmod +x startupMinIO.sh.&#x2F;startupMinIO.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> docker </tag>
+            
+            <tag> MinIO </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>如何安装mysql</title>
+      <link href="posts/183793f2/"/>
+      <url>posts/183793f2/</url>
+      
+        <content type="html"><![CDATA[<h2 id="centos7安装mysql5-7"><a href="#centos7安装mysql5-7" class="headerlink" title="centos7安装mysql5.7"></a>centos7安装mysql5.7</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 1.下载</span><span class="token function">wget</span> https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm<span class="token comment"># 2.安装yum源</span><span class="token function">rpm</span> -ivh mysql80-community-release-el7-3.noarch.rpm<span class="token comment"># 3.查看可用版本（enable）</span>yum repolist all<span class="token operator">|</span> <span class="token function">grep</span> mysql<span class="token comment"># 4.修改可用版本（需要的版本enabled改为1）</span><span class="token function">vim</span> /etc/yum.repos.d/mysql-community.repo<span class="token comment"># 5.查看可用版本（enable）</span>yum repolist all<span class="token operator">|</span> <span class="token function">grep</span> mysql<span class="token comment"># 6.安装mysql</span>yum <span class="token function">install</span> -y mysql-community-server<span class="token comment"># 查看初次启动默认密码</span><span class="token function">grep</span> <span class="token string">'password'</span> /var/log/mysqld.log<span class="token comment"># 用默认密码登陆mysql</span>mysql -u root -p<span class="token comment"># 修改root密码</span>ALTER <span class="token environment constant">USER</span> <span class="token string">'root'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'xxxxx'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> mysql </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>如何安装php环境</title>
+      <link href="posts/66e9c7fd/"/>
+      <url>posts/66e9c7fd/</url>
+      
+        <content type="html"><![CDATA[<h2 id="centos7安装php环境"><a href="#centos7安装php环境" class="headerlink" title="centos7安装php环境"></a>centos7安装php环境</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token function">install</span> epel-releaseyum <span class="token function">install</span> http://rpms.remirepo.net/enterprise/remi-release-7.rpmyum <span class="token function">install</span> yum-utilsyum search php73yum search php74yum <span class="token function">install</span> php74-php-gd  php74-php-pdo php74-php-mbstring php74-php-cli php74-php-fpm php74-php-mysqlndsystemctl status php74-php-fpmsystemctl start php74-php-fpmsystemctl <span class="token builtin class-name">enable</span> php74-php-fpm<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> php </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>如何安装nginx</title>
+      <link href="posts/296035cb/"/>
+      <url>posts/296035cb/</url>
+      
+        <content type="html"><![CDATA[<h2 id="centos7安装nginx"><a href="#centos7安装nginx" class="headerlink" title="centos7安装nginx"></a>centos7安装nginx</h2><p>添加nginx的yum仓库</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">vim</span> /etc/yum.repos.d/nginx.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>填入内容</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>nginx-stable<span class="token punctuation">]</span><span class="token assign-left variable">name</span><span class="token operator">=</span>nginx stable repo<span class="token assign-left variable">baseurl</span><span class="token operator">=</span>http://nginx.org/packages/centos/<span class="token variable">$releasever</span>/<span class="token variable">$basearch</span>/<span class="token assign-left variable">gpgcheck</span><span class="token operator">=</span><span class="token number">1</span><span class="token assign-left variable">enabled</span><span class="token operator">=</span><span class="token number">1</span><span class="token assign-left variable">gpgkey</span><span class="token operator">=</span>https://nginx.org/keys/nginx_signing.key<span class="token assign-left variable">module_hotfixes</span><span class="token operator">=</span>true<span class="token punctuation">[</span>nginx-mainline<span class="token punctuation">]</span><span class="token assign-left variable">name</span><span class="token operator">=</span>nginx mainline repo<span class="token assign-left variable">baseurl</span><span class="token operator">=</span>http://nginx.org/packages/mainline/centos/<span class="token variable">$releasever</span>/<span class="token variable">$basearch</span>/<span class="token assign-left variable">gpgcheck</span><span class="token operator">=</span><span class="token number">1</span><span class="token assign-left variable">enabled</span><span class="token operator">=</span><span class="token number">0</span><span class="token assign-left variable">gpgkey</span><span class="token operator">=</span>https://nginx.org/keys/nginx_signing.key<span class="token assign-left variable">module_hotfixes</span><span class="token operator">=</span>true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>安装步骤</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 查看可用版本（enable）</span>yum repolist all<span class="token operator">|</span> <span class="token function">grep</span> nginx<span class="token comment"># 默认时最新稳定版，要安装开发版的话，需要执行此行</span><span class="token comment">#sudo yum-config-manager --enable nginx-mainline</span><span class="token comment"># 安装</span><span class="token function">sudo</span> yum <span class="token function">install</span> nginx<span class="token comment"># 启动nginx并设置开机自启</span>systemctl start nginxsystemctl <span class="token builtin class-name">enable</span> nginx<span class="token comment"># 确认安装成功</span><span class="token function">curl</span> http://127.0.01<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> nginx </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>在docker中使用redis</title>
+      <link href="posts/a5f76939/"/>
+      <url>posts/a5f76939/</url>
+      
+        <content type="html"><![CDATA[<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>安装目标：</p><p>启动两个redis，并开启密码保护、rdb持久化，数据和配置文件存放在宿主机。</p><p>选择一个适合的版本：</p><p><a href="https://hub.docker.com/">在docker-hub中选择</a></p><pre class="line-numbers language-none"><code class="language-none"># 此处选用6.2.1-alpinedocker pull redis:6.2.1-alpine<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>准备存放持久化文件、配置文件的宿主机目录</p><pre class="line-numbers language-none"><code class="language-none">mkdir -p &#x2F;data&#x2F;redis&#x2F;&#123;a,b&#125;&#x2F;conf mkdir -p &#x2F;data&#x2F;redis&#x2F;&#123;a,b&#125;&#x2F;data <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>编写配置文件redis.conf，并放入对应的宿主机目录内</p><pre class="line-numbers language-none"><code class="language-none">#bind 127.0.0.1daemonize norequirepass  123456 appendonly no tcp-keepalive 300 # 说明#bind 127.0.0.1 #注释掉这部分，使redis可以外部访问daemonize no #不需要使用守护线程的方式启动，交给docker来负责即可requirepass  123456   #给redis设置密码appendonly no  #aof持久化，按需修改即可tcp-keepalive 300 #防止出现远程主机强迫关闭了一个现有的连接的错误 默认是300<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>注：</p><ul><li>要获取完整的默认配置文件，可以在<a href="https://redis.io/download">官网</a>下载解压后，查询redis.conf文件</li><li>密码按需修改，或者注释掉该行（即不用密码访问）</li><li>持久化配置额外配置参考<a href="https://redis.io/topics/persistence">文档</a></li></ul><p>启动redis</p><pre class="line-numbers language-none"><code class="language-none">docker run \--name redis-a \-d \--restart&#x3D;always \-p 6379:6379 \-v &#x2F;data&#x2F;redis&#x2F;a&#x2F;conf&#x2F;redis.conf:&#x2F;etc&#x2F;redis&#x2F;redis.conf \-v &#x2F;data&#x2F;redis&#x2F;a&#x2F;data:&#x2F;data \--sysctl net.core.somaxconn&#x3D;511 \redis:6.2.1-alpine redis-server &#x2F;etc&#x2F;redis&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>查看是否启动成功</p><pre class="line-numbers language-none"><code class="language-none">docker psdocker logs redis-a<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>启动成功后，可以通过一些工具访问此redis，如果启动过程中有Warning和Error，则可根据提示解决。此处列出两个警告及其解决方法。</p><h2 id="排错"><a href="#排错" class="headerlink" title="排错"></a>排错</h2><ol><li>启动日志有警告：</li></ol><pre class="line-numbers language-none"><code class="language-none">WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add &#39;vm.overcommit_memory &#x3D; 1&#39; to &#x2F;etc&#x2F;sysctl.conf and then reboot or run the command &#39;sysctl vm.overcommit_memory&#x3D;1&#39; for this to take effect.<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>解决:</p><pre class="line-numbers language-none"><code class="language-none">echo &quot;vm.overcommit_memory &#x3D; 1&quot; &gt;&gt; &#x2F;etc&#x2F;sysctl.confsysctl vm.overcommit_memory&#x3D;1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><ol start="2"><li>启动日志有警告：</li></ol><pre class="line-numbers language-none"><code class="language-none">WARNING: The TCP backlog setting of 511 cannot be enforced because &#x2F;proc&#x2F;sys&#x2F;net&#x2F;core&#x2F;somaxconn is set to the lower value of 128.<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>解决:</p><pre class="line-numbers language-none"><code class="language-none">echo &quot;net.core.somaxconn &#x3D; 1024&quot; &gt;&gt; &#x2F;etc&#x2F;sysctl.confsysctl -p并且在docker run命令启动时，添加--sysctl net.core.somaxconn&#x3D;511 \即可<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><h2 id="附"><a href="#附" class="headerlink" title="附"></a>附</h2><h3 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h3><p>Redis提供了不同范围的持久性选项：</p><ul><li><p><strong>RDB</strong>（Redis数据库）：RDB持久性按指定的时间间隔执行数据集的时间点快照。</p></li><li><p><strong>AOF</strong>（仅附加文件）：AOF持久性记录服务器接收的每个写入操作，这些操作将在服务器启动时再次播放，以重建原始数据集。使用与Redis协议本身相同的格式记录命令，并且采用仅追加方式。当日志太大时，Redis可以在后台重写日志。</p></li><li><p><strong>无持久性</strong>：如果希望，只要服务器正在运行，数据就一直存在，则可以完全禁用持久性。</p></li><li><p><strong>RDB + AOF</strong>：可以在同一实例中同时合并AOF和RDB。请注意，在这种情况下，当Redis重新启动时，AOF文件将用于重建原始数据集，因为它可以保证是最完整的。</p></li></ul><p>要理解的最重要的事情是RDB与AOF持久性之间的不同权衡</p><p>详见：<a href="https://redis.io/topics/persistence">redis持久化文档</a></p><h3 id="docker-run"><a href="#docker-run" class="headerlink" title="docker run"></a>docker run</h3><p>docker run 命令参数：</p><ul><li>-p 将容器端口映射到宿主机端口，格式为：<strong>宿主机端口:容器端口</strong></li><li>-v 将宿主机目录挂在到容器内，格式为：<strong>宿主机目录:容器目录</strong></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> docker </tag>
+            
+            <tag> redis </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>什么是mysqlpump</title>
+      <link href="posts/cf36362e/"/>
+      <url>posts/cf36362e/</url>
+      
+        <content type="html"><![CDATA[<p>数据库备份有物理备份和逻辑备份两种形式，下面简单介绍这两种备份方式的区别，但不会太深入，毕竟本文的重点是mysqlpump。</p><ul><li><p>物理备份是将数据库的数据存储文件直接打包备份，也有些工具可以做物理备份。优点有：操作简单、恢复速度快；缺点有：版本兼容问题、数据有损坏的几率。可用于冷备份。</p></li><li><p>逻辑备份是将数据库的结构/数据/存储过程（甚至是数据库用户表）以sql等形式，从数据库中导出。这种备份方式多是使用工具。优点有：数据库无关、平台无关、数据完整等；缺点有：导出/导入速度慢等。可用于热备份。</p></li></ul><p>常用的逻辑备份工具有：mysqldump、mysqldumper等，本文将介绍自MySQL 5.7引入的新客户端工具mysqlpump，这个是作为mysqldump的继任者身份出现的，所以其设计和性能上是优于mysqldump的，下面介绍mysqlpump的特点。</p><ul><li>并行处理数据库以及数据库中的对象，以加快导出速度</li><li>更好地控制要转储的数据库和数据库对象（表，存储的程序，用户帐户）</li><li>创建压缩输出的能力</li><li>导入数据时，<code>InnoDB</code>通过在插入行后添加索引，可以更快地为表创建二级索引</li><li>导出进度展示（估计值）</li></ul><h2 id="mysqlpump使用"><a href="#mysqlpump使用" class="headerlink" title="mysqlpump使用"></a>mysqlpump使用</h2><p>mysqlpump使用方法：</p><ul><li>mysqlpump [OPTIONS] [–all-databases]</li><li>mysqlpump [OPTIONS] –databases DB1 [DB2 DB3…]</li><li>mysqlpump [OPTIONS] database [tables]</li></ul><p>常用mysqlpump参数</p><ul><li><p>–user=username –password 指定用户名，稍后输入密码</p></li><li><p>–default-parallelism=4 用4个线程去并发导出数据，每个表最多可以被一个线程操作</p></li><li><p>–exclude-databases=name 除了指定的库，其余库都导出。默认是导出所有库</p></li><li><p>–exclude-routines=name 除了指定的存储过程，其余存储过程都导出。默认是导出所有存储过程</p></li><li><p>–exclude-tables=name 除了指定的表，其余表都导出。默认是导出所有表</p></li><li><p>–include-tables=name 如果没有对应的exclude，只导出此参指定的表才会。如果有对应的exclude，则两者取并集。databases/routines都可以被include修饰</p></li><li><p>–no-create-db 不生成 create db语句。默认会生成。</p></li><li><p>–add-drop-table 在create table前加上drop if exist语句。默认不加。database/user都可以被add-drop修饰</p></li><li><p>–compress-output=algorithm 启用压缩，算法可选ZLIB、LZ4</p><pre class="line-numbers language-none"><code class="language-none">mysqlpump –compress-output&#x3D;ZLIB &gt; dump.zlib 压缩导出zlib_decompress dump.zlib dump.txt 解压缩<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li></ul><h2 id="mysqldump对比mysqlpump"><a href="#mysqldump对比mysqlpump" class="headerlink" title="mysqldump对比mysqlpump"></a>mysqldump对比mysqlpump</h2><p>简单的说，mysqlpump是对mysqldump的升级，使用了多线程来并发导出多个表，在表比较多的情况下，能显著提高导出速度。不过由于mysqlpump中，每张表只能被一个线程导出，所以对于单表内容多的情况下，两者并无太大差别。</p><p>参考：</p><p><a href="https://dev.mysql.com/doc/refman/5.7/en/mysqlpump.html">mysql-mysqlpump</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> tools </category>
+          
+          <category> what&#39;s </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> mysql </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>如何修改mysql的数据库名</title>
+      <link href="posts/60f5d476/"/>
+      <url>posts/60f5d476/</url>
+      
+        <content type="html"><![CDATA[<p>使用脚本，安全且方便的将旧库<strong>改名</strong>为新库。</p><pre class="line-numbers language-none"><code class="language-none">#!&#x2F;bin&#x2F;basholddbname&#x3D;&quot;old&quot;newdbname&#x3D;&quot;new&quot;mysql -h localhost -uroot -p&#39;xxxxxx&#39; -e &#39;create database if not exists $&#123;olddbname&#125;;&#39;list_table&#x3D;$(mysql -h localhost -uroot -p&#39;xxxxxx&#39; -Nse &quot;select table_name from information_schema.TABLES where TABLE_SCHEMA&#x3D;&#39;$&#123;newdbname&#125;&#39;&quot;)for table in $list_tabledo    mysql -h localhost -uroot -p&#39;xxxxxx&#39; -e &quot;rename table $&#123;newdbname&#125;.$table to $&#123;olddbname&#125;.$table&quot;done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p><strong>操作步骤</strong></p><p>将上述代码保存为shell脚本，修改olddbname和newdbname，以及数据库密码。运行该脚本即可。</p><p><strong>解释</strong></p><p>olddbname: 旧库名称</p><p>newdbname: 新库名称</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> tools </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> mysql </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>如何安装docker-ce</title>
+      <link href="posts/2d4a7e59/"/>
+      <url>posts/2d4a7e59/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>简单介绍下docker相关组件</p><p>containerd.io – daemon to interface with the OS API (in this case, LXC – Linux Containers), essentially decouples Docker from the OS, also provides container services for non-Docker container managers</p><p>docker-ce – Docker daemon, this is the part that does all the management work, requires the other two on Linux</p><p>docker-ce-cli – CLI tools to control the daemon, you can install them on their own if you want to control a remote Docker daemon</p><p>引用自： <a href="https://www.reddit.com/r/docker/comments/dsr6y2/containerdio_vs_dockercecli_vs_dockerce_what_are/">reddit</a></p></blockquote><p>话不多说，直接开干！</p><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>安装需要的软件包， yum-util 提供yum-config-manager功能，另外两个是devicemapper驱动依赖的</p><pre class="line-numbers language-none"><code class="language-none">yum install -y yum-utils device-mapper-persistent-data lvm2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>设置yum源(国内用户最好设置国内yum源)</p><pre class="line-numbers language-none"><code class="language-none">#国内yum源yum-config-manager --add-repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;docker-ce.repo# 国外yum源yum-config-manager --add-repo https:&#x2F;&#x2F;download.docker.com&#x2F;linux&#x2F;centos&#x2F;docker-ce.repo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>查看所有仓库中所有docker版本，并选择特定版本安装</p><pre class="line-numbers language-none"><code class="language-none">yum list docker-ce --showduplicates | sort -r<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>安装docker</p><pre class="line-numbers language-none"><code class="language-none">#(最新版) 由于repo中默认只开启stable仓库，故这里安装的是最新稳定版# yum install docker-ceyum install docker-ce docker-ce-cli containerd.io#（指定版本）yum install &lt;FQPN&gt;  # 例如：sudo yum install docker-ce-17.12.0.ce<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>注： 安装时，注意指纹应该为<code>060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35</code></p><p>启动并加入开机启动</p><pre class="line-numbers language-none"><code class="language-none">systemctl start dockersystemctl enable docker<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>验证是否安装成功</p><pre class="line-numbers language-none"><code class="language-none">docker version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h2 id="配置镜像加速"><a href="#配置镜像加速" class="headerlink" title="配置镜像加速"></a>配置镜像加速</h2><p>鉴于国内访问dockerhub网速不够快，我们可以配置国内的镜像太提高下载速度。</p><p>此处配置的是公司账号下的阿里云镜像，可自行选择要使用的国内镜像站。</p><p>针对Docker客户端版本大于 1.10.0 的用户 您可以通过修改daemon配置文件/etc/docker/daemon.json来使用加速器</p><pre class="line-numbers language-none"><code class="language-none">sudo mkdir -p &#x2F;etc&#x2F;dockersudo tee &#x2F;etc&#x2F;docker&#x2F;daemon.json &lt;&lt;-&#39;EOF&#39;&#123;  &quot;registry-mirrors&quot;: [&quot;https:&#x2F;&#x2F;yourcompany.mirror.aliyuncs.com&quot;]&#125;EOFsudo systemctl daemon-reloadsudo systemctl restart docker<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>查看是否配置成功</p><pre class="line-numbers language-none"><code class="language-none">docker info<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>至此，docker-ce安装完毕</p><h2 id="安装docker-compose"><a href="#安装docker-compose" class="headerlink" title="安装docker-compose"></a>安装docker-compose</h2><p>如果需要用到docker-compose来编排容器，那么还需要安装docker-compose。</p><p>下载二进制文件</p><pre class="line-numbers language-none"><code class="language-none">sudo curl -L &quot;https:&#x2F;&#x2F;github.com&#x2F;docker&#x2F;compose&#x2F;releases&#x2F;download&#x2F;1.29.0&#x2F;docker-compose-$(uname -s)-$(uname -m)&quot; -o &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>给予执行权限</p><pre class="line-numbers language-none"><code class="language-none">sudo chmod +x &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-compose<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>测试是否安装成功</p><pre class="line-numbers language-none"><code class="language-none">docker-compose --version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>docker-compose常用命令</p><pre class="line-numbers language-none"><code class="language-none"># 用当前文件夹下的docker-compose.yml文件，后台启动docker-compose up -d      # 指定xxx.yaml文件，在后台启动该服务docker-compose -f xxx.yaml up -d # 停止正在运行的容器，可以通过docker-compose start再次启动docker-compose stop [SERVICE…] # 停止yml中的所有容器docker-compose -f xxx.yaml stop# 停止和删除容器、网络、卷、镜像docker-compose down [options] # 用于删除已停止的 Compose 应用。docker-compose rmdocker-compose psdocker-compose --help<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>参考：</p><p><a href="https://docs.docker.com/engine/install/centos/">docker-install</a></p><p><a href="https://docs.docker.com/compose/install/">docker-compose-install</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> install </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> docker </tag>
+            
+            <tag> docker-compose </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
