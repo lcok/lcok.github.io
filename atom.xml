@@ -6,7 +6,7 @@
   <link href="https://vious.cn/atom.xml" rel="self"/>
   
   <link href="https://vious.cn/"/>
-  <updated>2021-06-03T07:57:28.000Z</updated>
+  <updated>2022-11-23T15:32:37.860Z</updated>
   <id>https://vious.cn/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>flink1.12.0中flink-jdbc-connector死锁问题探究</title>
+    <link href="https://vious.cn/posts/2ad84468/"/>
+    <id>https://vious.cn/posts/2ad84468/</id>
+    <published>2022-11-23T14:15:29.000Z</published>
+    <updated>2022-11-23T15:32:37.860Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;问题表象&quot;&gt;&lt;a href=&quot;#问题表象&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="flink" scheme="https://vious.cn/tags/flink/"/>
+    
+  </entry>
   
   <entry>
     <title>如何提高nginx的安全性</title>
