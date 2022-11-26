@@ -6,7 +6,7 @@
   <link href="https://vious.cn/atom.xml" rel="self"/>
   
   <link href="https://vious.cn/"/>
-  <updated>2022-11-23T15:32:37.860Z</updated>
+  <updated>2022-11-26T12:36:08.969Z</updated>
   <id>https://vious.cn/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://vious.cn/posts/2ad84468/"/>
     <id>https://vious.cn/posts/2ad84468/</id>
     <published>2022-11-23T14:15:29.000Z</published>
-    <updated>2022-11-23T15:32:37.860Z</updated>
+    <updated>2022-11-26T12:36:08.969Z</updated>
     
     
       
@@ -34,6 +34,8 @@
     
     
     
+    <category term="kill-the-bug" scheme="https://vious.cn/categories/kill-the-bug/"/>
+    
     
     <category term="flink" scheme="https://vious.cn/tags/flink/"/>
     
@@ -44,7 +46,7 @@
     <link href="https://vious.cn/posts/6867d71/"/>
     <id>https://vious.cn/posts/6867d71/</id>
     <published>2021-06-03T06:14:19.000Z</published>
-    <updated>2021-06-03T07:57:28.000Z</updated>
+    <updated>2022-11-26T12:33:41.689Z</updated>
     
     
       
@@ -58,6 +60,8 @@
     
     
     
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
+    
     
     <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
     
@@ -68,7 +72,7 @@
     <link href="https://vious.cn/posts/c714d80/"/>
     <id>https://vious.cn/posts/c714d80/</id>
     <published>2021-05-19T06:55:06.000Z</published>
-    <updated>2022-10-16T03:06:17.473Z</updated>
+    <updated>2022-11-26T12:31:07.191Z</updated>
     
     
       
@@ -82,10 +86,10 @@
     
     
     
-    <category term="tools" scheme="https://vious.cn/categories/tools/"/>
+    <category term="开源" scheme="https://vious.cn/categories/%E5%BC%80%E6%BA%90/"/>
     
     
-    <category term="fun" scheme="https://vious.cn/tags/fun/"/>
+    <category term="java" scheme="https://vious.cn/tags/java/"/>
     
   </entry>
   
@@ -94,7 +98,7 @@
     <link href="https://vious.cn/posts/7aa5072d/"/>
     <id>https://vious.cn/posts/7aa5072d/</id>
     <published>2021-05-19T05:22:22.000Z</published>
-    <updated>2021-05-19T05:36:10.000Z</updated>
+    <updated>2022-11-26T12:36:42.420Z</updated>
     
     
       
@@ -107,7 +111,7 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="docker" scheme="https://vious.cn/tags/docker/"/>
@@ -121,7 +125,7 @@
     <link href="https://vious.cn/posts/7b3ad2a0/"/>
     <id>https://vious.cn/posts/7b3ad2a0/</id>
     <published>2021-05-14T05:41:43.000Z</published>
-    <updated>2021-05-14T05:44:30.000Z</updated>
+    <updated>2022-11-26T12:36:31.705Z</updated>
     
     
       
@@ -133,6 +137,8 @@
       
     
     
+    
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="mqtt" scheme="https://vious.cn/tags/mqtt/"/>
@@ -146,7 +152,7 @@
     <link href="https://vious.cn/posts/b917198/"/>
     <id>https://vious.cn/posts/b917198/</id>
     <published>2021-04-27T07:09:48.000Z</published>
-    <updated>2021-04-28T07:12:34.000Z</updated>
+    <updated>2022-11-26T12:34:48.480Z</updated>
     
     
       
@@ -164,6 +170,10 @@
     
     
     
+    <category term="kill-the-bug" scheme="https://vious.cn/categories/kill-the-bug/"/>
+    
+    
+    <category term="linux" scheme="https://vious.cn/tags/linux/"/>
     
     <category term="security" scheme="https://vious.cn/tags/security/"/>
     
@@ -174,7 +184,7 @@
     <link href="https://vious.cn/posts/725ed0be/"/>
     <id>https://vious.cn/posts/725ed0be/</id>
     <published>2021-04-22T07:46:07.000Z</published>
-    <updated>2021-04-22T08:10:31.000Z</updated>
+    <updated>2022-11-26T12:36:40.165Z</updated>
     
     
       
@@ -187,7 +197,7 @@
     
     
     
-    <category term="bug" scheme="https://vious.cn/categories/bug/"/>
+    <category term="kill-the-bug" scheme="https://vious.cn/categories/kill-the-bug/"/>
     
     
     <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
@@ -199,7 +209,7 @@
     <link href="https://vious.cn/posts/37178aa8/"/>
     <id>https://vious.cn/posts/37178aa8/</id>
     <published>2021-04-18T01:16:45.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:38:23.957Z</updated>
     
     
       
@@ -213,12 +223,12 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="docker" scheme="https://vious.cn/tags/docker/"/>
     
-    <category term="MongoDB" scheme="https://vious.cn/tags/MongoDB/"/>
+    <category term="mongodb" scheme="https://vious.cn/tags/mongodb/"/>
     
   </entry>
   
@@ -227,7 +237,7 @@
     <link href="https://vious.cn/posts/7b2c2425/"/>
     <id>https://vious.cn/posts/7b2c2425/</id>
     <published>2021-04-18T01:14:50.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:35:31.819Z</updated>
     
     
       
@@ -241,12 +251,12 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="docker" scheme="https://vious.cn/tags/docker/"/>
     
-    <category term="MinIO" scheme="https://vious.cn/tags/MinIO/"/>
+    <category term="minio" scheme="https://vious.cn/tags/minio/"/>
     
   </entry>
   
@@ -255,7 +265,7 @@
     <link href="https://vious.cn/posts/183793f2/"/>
     <id>https://vious.cn/posts/183793f2/</id>
     <published>2021-04-17T15:36:12.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:32:59.802Z</updated>
     
     
       
@@ -268,7 +278,7 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="mysql" scheme="https://vious.cn/tags/mysql/"/>
@@ -280,7 +290,7 @@
     <link href="https://vious.cn/posts/66e9c7fd/"/>
     <id>https://vious.cn/posts/66e9c7fd/</id>
     <published>2021-04-17T15:35:58.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:36:34.440Z</updated>
     
     
       
@@ -293,7 +303,7 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="php" scheme="https://vious.cn/tags/php/"/>
@@ -305,7 +315,7 @@
     <link href="https://vious.cn/posts/296035cb/"/>
     <id>https://vious.cn/posts/296035cb/</id>
     <published>2021-04-17T15:35:37.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:33:21.224Z</updated>
     
     
       
@@ -318,7 +328,7 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="nginx" scheme="https://vious.cn/tags/nginx/"/>
@@ -330,7 +340,7 @@
     <link href="https://vious.cn/posts/a5f76939/"/>
     <id>https://vious.cn/posts/a5f76939/</id>
     <published>2021-04-16T13:58:56.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:36:43.073Z</updated>
     
     
       
@@ -343,7 +353,7 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="docker" scheme="https://vious.cn/tags/docker/"/>
@@ -357,7 +367,7 @@
     <link href="https://vious.cn/posts/cf36362e/"/>
     <id>https://vious.cn/posts/cf36362e/</id>
     <published>2021-03-02T12:17:02.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:34:15.286Z</updated>
     
     
       
@@ -372,9 +382,7 @@
     
     
     
-    <category term="tools" scheme="https://vious.cn/categories/tools/"/>
-    
-    <category term="what&#39;s" scheme="https://vious.cn/categories/tools/what-s/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="mysql" scheme="https://vious.cn/tags/mysql/"/>
@@ -386,7 +394,7 @@
     <link href="https://vious.cn/posts/60f5d476/"/>
     <id>https://vious.cn/posts/60f5d476/</id>
     <published>2021-02-15T15:15:25.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:36:37.998Z</updated>
     
     
       
@@ -400,7 +408,7 @@
     
     
     
-    <category term="tools" scheme="https://vious.cn/categories/tools/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="mysql" scheme="https://vious.cn/tags/mysql/"/>
@@ -412,7 +420,7 @@
     <link href="https://vious.cn/posts/2d4a7e59/"/>
     <id>https://vious.cn/posts/2d4a7e59/</id>
     <published>2021-01-07T13:33:00.000Z</published>
-    <updated>2021-04-20T07:50:59.000Z</updated>
+    <updated>2022-11-26T12:32:37.456Z</updated>
     
     
       
@@ -427,7 +435,7 @@
     
     
     
-    <category term="install" scheme="https://vious.cn/categories/install/"/>
+    <category term="朝知夕拾" scheme="https://vious.cn/categories/%E6%9C%9D%E7%9F%A5%E5%A4%95%E6%8B%BE/"/>
     
     
     <category term="docker" scheme="https://vious.cn/tags/docker/"/>
